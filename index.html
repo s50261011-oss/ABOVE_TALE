@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Blank Game Test</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    button {
+      font-size: 20px;
+      padding: 15px 30px;
+      cursor: pointer;
+    }
+
+    p {
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>🎮 Game Loader Test</h1>
+
+    <button id="playButton">
+      PLAY
+    </button>
+
+    <p>
+      Cloudflare → about:blank → Canvas
+    </p>
+  </div>
+
+  <script>
+    const playButton = document.getElementById("playButton");
+
+    playButton.addEventListener("click", () => {
+
+      // about:blankを新しく開く
+      const gameWindow = window.open("about:blank", "_blank");
+
+      // ポップアップがブロックされた場合
+      if (!gameWindow) {
+        alert("about:blankを開けませんでした。");
+        return;
+      }
+
+      // about:blankのHTMLを作る
+      gameWindow.document.open();
+
+      gameWindow.document.write(`
+        <!DOCTYPE html>
+
+        <html lang="ja">
+
+        <head>
+          <meta charset="UTF-8">
+
+          <title>My Game</title>
+
+          <style>
+
+            html, body {
+              margin: 0;
+              padding: 0;
+              width: 100%;
+              height: 100%;
+              overflow: hidden;
+              background: black;
+            }
+
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+
+            canvas {
+              width: 640px;
+              height: 480px;
+
+              /*
+               * ドット絵っぽく拡大
+               */
+              image-rendering: pixelated;
+
+              background: black;
+            }
+
+          </style>
+        </head>
+
+        <body>
+
+          <canvas
+            id="game"
+            width="320"
+            height="240">
+          </canvas>
+
+          <script>
+
+            const canvas =
+              document.getElementById("game");
+
+            const ctx =
+              canvas.getContext("2d");
+
+            // プレイヤー
+            let player = {
+              x: 160,
+              y: 120,
+              size: 12,
+              speed: 2
+            };
+
+            // キー入力
+            const keys = {};
+
+            document.addEventListener("keydown", (event) => {
+              keys[event.key] = true;
+            });
+
+            document.addEventListener("keyup", (event) => {
+              keys[event.key] = false;
+            });
+
+
+            // ゲーム更新
+            function update() {
+
+              if (keys["ArrowUp"]) {
+                player.y -= player.speed;
+              }
+
+              if (keys["ArrowDown"]) {
+                player.y += player.speed;
+              }
+
+              if (keys["ArrowLeft"]) {
+                player.x -= player.speed;
+              }
+
+              if (keys["ArrowRight"]) {
+                player.x += player.speed;
+              }
+
+
+              // 画面外に出ないようにする
+
+              if (player.x < 0) {
+                player.x = 0;
+              }
+
+              if (player.y < 0) {
+                player.y = 0;
+              }
+
+              if (player.x > canvas.width - player.size) {
+                player.x = canvas.width - player.size;
+              }
+
+              if (player.y > canvas.height - player.size) {
+                player.y = canvas.height - player.size;
+              }
+            }
+
+
+            // 描画
+            function draw() {
+
+              // 背景
+              ctx.fillStyle = "black";
+              ctx.fillRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+
+
+              // 枠
+              ctx.strokeStyle = "white";
+              ctx.lineWidth = 4;
+
+              ctx.strokeRect(
+                10,
+                10,
+                canvas.width - 20,
+                canvas.height - 20
+              );
+
+
+              // プレイヤー
+              ctx.fillStyle = "red";
+
+              ctx.fillRect(
+                player.x,
+                player.y,
+                player.size,
+                player.size
+              );
+
+
+              // 説明
+              ctx.fillStyle = "white";
+              ctx.font = "12px monospace";
+
+              ctx.fillText(
+                "ARROW KEYS TO MOVE",
+                20,
+                30
+              );
+
+              ctx.fillText(
+                "CLOUDFLARE → ABOUT:BLANK → CANVAS",
+                20,
+                225
+              );
+            }
+
+
+            // ゲームループ
+            function gameLoop() {
+
+              update();
+              draw();
+
+              requestAnimationFrame(gameLoop);
+            }
+
+
+            // ゲーム開始
+            gameLoop();
+
+          <\/script>
+
+        </body>
+        </html>
+      `);
+
+      gameWindow.document.close();
+
+    });
+  </script>
+
+</body>
+</html>
